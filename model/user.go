@@ -1,14 +1,5 @@
 package model
 
-import (
-	"errors"
-)
-
-var (
-	ErrUserExists    = errors.New("error user exists")
-	ErrUserNotExists = errors.New("error user not exists")
-)
-
 type UserDao struct {
 }
 
@@ -29,10 +20,6 @@ func NewUserDao() *UserDao {
 	return new(UserDao)
 }
 
-func NewUserInfoDao() *UserInfoDao {
-	return new(UserInfoDao)
-}
-
 func (u *UserDao) QueryUserById(id int64) (*User, error) {
 	user := &User{}
 	err := DB.First(user, "Id = ?", id).Error
@@ -40,25 +27,23 @@ func (u *UserDao) QueryUserById(id int64) (*User, error) {
 }
 
 func (u *UserDao) AddUser(user *User) int {
-	var count int64
-	status := 0
-	if err := DB.Table("users").Where("username =?", user.Username).Count(&count).Error; err != nil {
-		status = 1
-	}
-	if count != 0 {
-		status = 2
+	if u.userExists(user) {
+		return 1
 	}
 	if err := DB.Create(user).Error; err != nil {
-		status = 3
+		return 2
 	}
-	return status
+	return 0
 }
 
-func (u *UserDao) QueryUserByName(name string) (*User, error) {
+func (u *UserDao) QueryUserByName(name string) (*User, int) {
 	var user User
-	err := DB.Where(&User{Username: name}, "username").First(&user).Error
-	if err != nil {
-		return nil, err
+	if err := DB.Where(&User{Username: name}, "username").First(&user).Error; err != nil {
+		return nil, 1
 	}
-	return &user, err
+	return &user, 0
+}
+
+func (u *UserDao) userExists(user *User) bool {
+	return DB.Model(&User{}).Where("username =?", user.Username).First(&User{}).Error == nil
 }

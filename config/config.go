@@ -26,6 +26,10 @@ type Config struct {
 	Static struct {
 		Path string
 	}
+	LocalIp struct {
+		Ip   string
+		Port string
+	}
 }
 
 var C Config

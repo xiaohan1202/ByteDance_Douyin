@@ -56,19 +56,14 @@ func Register(c *gin.Context) {
 	case 1:
 		c.JSON(http.StatusOK, Response{
 			StatusCode: int32(status),
-			StatusMsg:  "系统内部错误",
+			StatusMsg:  "用户名已存在",
 		})
 	case 2:
 		c.JSON(http.StatusOK, Response{
 			StatusCode: int32(status),
-			StatusMsg:  "用户名已存在",
-		})
-	case 3:
-		c.JSON(http.StatusOK, Response{
-			StatusCode: int32(status),
 			StatusMsg:  "注册失败",
 		})
-	case 4:
+	case 3:
 		c.JSON(http.StatusOK, Response{
 			StatusCode: int32(status),
 			StatusMsg:  "token颁发失败",
@@ -125,9 +120,8 @@ func Login(c *gin.Context) {
 
 func UserInfo(c *gin.Context) {
 	//取出待查询用户ID
-	rawId := c.Query("user_id")
 	token := c.Query("token")
-	userId, _ := strconv.ParseInt(rawId, 10, 64)
+	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	user, status := service.NewUserInfoService(token, userId).QueryUserInfo()
 	switch status {
 	case 0:

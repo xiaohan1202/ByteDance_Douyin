@@ -67,9 +67,9 @@ func (u *UserRegisterService) Register() (*UserRegisterData, int) {
 	if status != 0 {
 		return nil, status
 	}
-	token, err := utils.SignToken(user)
+	token, err := utils.SignToken(user.Id)
 	if err != nil {
-		status = 4
+		status = 3
 		return nil, status
 	}
 	return &UserRegisterData{UserId: user.Id, Token: token}, status
@@ -77,9 +77,8 @@ func (u *UserRegisterService) Register() (*UserRegisterData, int) {
 
 func (u *UserLoginService) Login() (*UserLoginData, int) {
 	status := 0
-	user, _ := model.NewUserDao().QueryUserByName(u.Username)
-	if user == nil {
-		status = 1
+	user, status := model.NewUserDao().QueryUserByName(u.Username)
+	if status != 0 {
 		return nil, status
 	}
 	upassword := utils.Encrypt(u.Password, user.Salt)
@@ -87,7 +86,7 @@ func (u *UserLoginService) Login() (*UserLoginData, int) {
 		status = 2
 		return nil, status
 	}
-	token, err := utils.SignToken(*user)
+	token, err := utils.SignToken(user.Id)
 	if err != nil {
 		status = 3
 		return nil, status
@@ -103,7 +102,7 @@ func (u *UserInfoService) QueryUserInfo() (*UserInfo, int) {
 	//	status = 1
 	//	return nil, status
 	//}
-	//currentId, _ := strconv.ParseInt(claims.Id, 10, 64)
+	//currentId := claims.UserId
 	user, err := model.NewUserDao().QueryUserById(u.userId)
 	if err != nil {
 		status = 2
