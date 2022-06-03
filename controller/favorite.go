@@ -20,8 +20,7 @@ func FavoriteAction(c *gin.Context) {
 	userId := c.Query("user_id")
 	token := c.Query("token")
 	videoId := c.Query("video_id")
-	rawActionType := c.Query("action_type")
-	actionType, _ := strconv.ParseInt(rawActionType, 10, 64)
+	actionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	status := service.NewFavoriteService(userId, token, videoId, actionType).Favorite()
 	switch actionType {
 	case 1:

@@ -95,18 +95,14 @@ func (u *UserLoginService) Login() (*UserLoginData, int) {
 }
 
 func (u *UserInfoService) QueryUserInfo() (*UserInfo, int) {
-	status := 0
 	//解析token
-	//claims, err := utils.ParseToken(u.token)
-	//if err != nil {
-	//	status = 1
-	//	return nil, status
-	//}
-	//currentId := claims.UserId
+	curUser, err := utils.ParseToken(u.token)
+	if err != nil {
+		return nil, 4
+	}
 	user, err := model.NewUserDao().QueryUserById(u.userId)
 	if err != nil {
-		status = 2
-		return nil, status
+		return nil, 2
 	}
 	userInfo := &UserInfo{
 		Id:            user.Id,
@@ -115,6 +111,6 @@ func (u *UserInfoService) QueryUserInfo() (*UserInfo, int) {
 		FollowerCount: user.FollowerCount,
 	}
 	//查询是否有关注关系
-	//user.IsFollow = model.isFollow(u.CurrentUser, u.QueryUser)
-	return userInfo, status
+	userInfo.IsFollow = model.NewFollowDao().IsFollow(curUser, u.userId)
+	return userInfo, 0
 }
